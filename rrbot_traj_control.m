@@ -53,8 +53,7 @@ while(t < 10)
     theta2_dot = x(4);
 
     M = [m2*l1^2 + 2*m2*cos(theta2)*l1*r2 + m1*r1^2 + m2*r2^2 + I1 + I2, m2*r2^2 + l1*m2*cos(theta2)*r2 + I2; I2 + m2*r2^2+ m2*r2*l1*cos(theta2), m2*r2^2 + I2] ;
-    C1 = [-theta2_dot*((9*sin(theta2)*(theta1_dot + theta2_dot))/20 + (9*theta1_dot*sin(theta2))/20)];
-    C2 = [(9*theta1_dot*sin(theta2)*(theta1_dot + theta2_dot))/20 - (9*theta1_dot*theta2_dot*sin(theta2))/20];
+    C= [l1*m2*r2*sin(theta2), -l1*m2*r2*theta1_dot*sin(theta2) + l1*m2*r2*sin(theta2); l1*m2*r2*sin(theta2)*(theta1_dot + theta2_dot) - l1*m2*r2*theta2_dot*sin(theta2), 0];
     G = [- g*l1*m2*sin(theta1) - g*m1*r1*sin(theta1) - m2*g*r2*sin(theta1 + theta2); - g*m2*r2*sin(theta1 + theta2)];
 
     k = [110, 0 , 21, 0; 0, 110, 0, 21]; 
@@ -62,7 +61,7 @@ while(t < 10)
     e(1:2, 1) = wrapToPi(e(1:2,1));   
 
     % State feedback controller
-    U = M*(- k*(e) + [q1ddot_d; q2ddot_d]) + [C1; C2] + G;
+    U = M*(- k*(e) + [q1ddot_d; q2ddot_d]) + C + G;
 
     tau1.Data = [U(1,:)];
     tau2.Data = [U(2,:)];

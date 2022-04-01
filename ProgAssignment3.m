@@ -63,12 +63,11 @@ for i = 1:size(y,1)
     v2(i) = - K(2,1)*(y(i,1) - q1_d(i)) - K(2,2)*(y(i,2) - q2_d(i)) - K(2,3)*(y(i,3) - q1dot_d(i)) - K(2,4)*(y(i,4) - q1dot_d(i)) + q2ddot_d(i);
     
     M = [m2*l1^2 + 2*m2*cos(y(i,2))*l2*r2 + m1*r1^2 + m2*r2^2 + I1 + I2, m2*r2^2 + l1*m2*cos(y(i,2))*r2 + I2; I2 + m2*r2^2+ m2*r2*l1*cos(y(i,2)), m2*r2^2 + I2] ;
-    C1 = [-y(i,4)*((9*sin(y(i,2))*(y(i,3) + y(i,4)))/20 + (9*y(i,3)*sin(y(i,2)))/20)];
-    C2 = [(9*y(i,3)*sin(y(i,2))*(y(i,3) + y(i,4)))/20 - (9*y(i,3)*y(i,4)*sin(y(i,2)))/20];
+    C = [-y(i,4)*((9*sin(y(i,2))*(y(i,3) + y(i,4)))/20 + (9*y(i,3)*sin(y(i,2)))/20); (9*y(i,3)*sin(y(i,2))*(y(i,3) + y(i,4)))/20 - (9*y(i,3)*y(i,4)*sin(y(i,2)))/20];
     G = [- g*l1*m2*sin(y(i,1)) - g*m1*r1*sin(y(i,1)) - m2*g*r2*sin(y(i,1) + y(i,2)); - g*m2*r2*sin(y(i,1) + y(i,2))];
-    
-    u1(i)= M(1, :) * [v1(i); v2(i)] + C1 + G(1, 1) ;
-    u2(i)= M(2, :) * [v1(i); v2(i)] + C2 + G(2, 1) ;
+
+    u1(i)= M(1, :) * [v1(i); v2(i)] + C(1) + G(1) ;
+    u2(i)= M(2, :) * [v1(i); v2(i)] + C(2) + G(2) ;
 end
 
 figure(1)
@@ -135,9 +134,7 @@ X=num2cell(X);
 [theta1, theta2, theta1_dot, theta2_dot] = deal(X{:});
 
 M = [m2*l1^2 + 2*m2*cos(theta2)*l1*r2 + m1*r1^2 + m2*r2^2 + I1 + I2, m2*r2^2 + l1*m2*cos(theta2)*r2 + I2; I2 + m2*r2^2+ m2*r2*l1*cos(theta2), m2*r2^2 + I2] ;
-C= [l1*m2*r2*sin(theta2), -l1*m2*r2*theta1_dot*sin(theta2) + l1*m2*r2*sin(theta2); l1*m2*r2*sin(theta2)*(theta1_dot + theta2_dot) - l1*m2*r2*theta2_dot*sin(theta2), 0];
-C1 = [-theta2_dot*((9*sin(theta2)*(theta1_dot + theta2_dot))/20 + (9*theta1_dot*sin(theta2))/20)];
-C2 = [(9*theta1_dot*sin(theta2)*(theta1_dot + theta2_dot))/20 - (9*theta1_dot*theta2_dot*sin(theta2))/20];
+C = [-theta2_dot*((9*sin(theta2)*(theta1_dot + theta2_dot))/20 + (9*theta1_dot*sin(theta2))/20); (9*theta1_dot*sin(theta2)*(theta1_dot + theta2_dot))/20 - (9*theta1_dot*theta2_dot*sin(theta2))/20];
 G = [- g*l1*m2*sin(theta1) - g*m1*r1*sin(theta1) - m2*g*r2*sin(theta1 + theta2); - g*m2*r2*sin(theta1 + theta2)];
 
 q1_d = pi - (3*pi*t^2)/100 + (pi*t^3)/500;
@@ -151,7 +148,7 @@ q2ddot_d = - (6*pi)/200 + (6*t*pi)/1000;
 % Feedback linearization control 
 K = [12, 0 , 7, 0; 0, 2, 0, 3];
 
-U = M*(- K*([theta1; theta2; theta1_dot; theta2_dot] - [q1_d; q2_d; q1dot_d; q2dot_d]) +[q1ddot_d; q2ddot_d]) + [C1; C2] + G;
+U = M*(- K*([theta1; theta2; theta1_dot; theta2_dot] - [q1_d; q2_d; q1dot_d; q2dot_d]) +[q1ddot_d; q2ddot_d]) + C + G;
 
 u1 = [U(1,:)];
 u2 = [U(2,:)];
